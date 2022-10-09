@@ -1,0 +1,194 @@
+---
+title: "P8122-Homework3-yz4184"
+author: "Yunlin Zhou"
+date: '2022-10-09'
+output: word_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+knitr::opts_chunk$set(echo = TRUE,
+                      warning = FALSE,
+                      message = FALSE)
+```
+
+```{r}
+# data import
+set.seed(124)
+n <- 16
+p_C <- 1/5
+C <- rbinom(n,1,p_C)
+theta0 <- 1/2
+theta1 <- -1/5
+p_A <- theta0+theta1*C
+A <- rbinom(n,1,p_A)
+beta0 <- 110
+beta1 <- 20
+beta2 <- 5
+sigma_Y <- 1
+mu_Y <- beta0+beta1*C+beta2*A
+Y <- rnorm(n,mu_Y, sigma_Y)
+```
+
+# Question a
+
+p: The baseline covariate C (obesity) follows Bernoulli distribution. p is the probability of C taking 1 (with obesity).
+
+theta0: The original probability of assigning the units to treatment group (light) if there were no baseline covariate C.
+
+theta1: The probability of assigning the units with obesity to treatment group (light) is 1/5 times lower than the units without obesity on average.
+
+beta0: The mean of baseline glucose without baseline covariate C and treatment assignment A.
+
+beta1: The change in the mean of glucose between the mice with obesity and the mice without obesity, conditionally on treatment assignment A. 
+
+beta2: The change in the mean of glucose between the treatment group (light) and the control group (dark), conditionally on baseline covariate C (obesity). 
+
+
+# Question d
+
+```{r}
+mice_df = cbind(Y, A, C)%>%
+  as.data.frame()
+```
+
+
+```{r}
+mice_df$interv <- -1 
+
+interv0 <- mice_df
+interv0$interv <- 0
+interv0$A <- 0
+interv0$Y<- NA
+
+interv1 <- mice_df 
+interv1$interv <- 1
+interv1$A <- 1
+interv1$Y<- NA
+
+onesample <- rbind(mice_df, interv0, interv1) 
+```
+
+
+```{r}
+std <- glm(
+  Y ~ A + C,
+  data = onesample
+)
+onesample$predicted_meanY <- predict(std, onesample)
+```
+
+
+```{r}
+mean_0_c =mean(onesample[which(onesample$interv == 0), ]$predicted_meanY)
+
+
+mean_1_c = mean(onesample[which(onesample$interv == 1),]$predicted_meanY)
+```
+
+
+```{r}
+mean_1_c - mean_0_c
+```
+
+
+# Question e
+
+```{r}
+df = onesample %>%
+  filter(interv == -1)
+
+mean_1 = mean(df[which(df$A == 1), ]$predicted_meanY)
+mean_0 = mean(df[which(df$A == 0), ]$predicted_meanY)
+mean_1 - mean_0
+```
+
+
+## another try
+
+```{r}
+mice_df_2 = cbind(mu_Y, A, C)%>%
+  as.data.frame()
+```
+
+
+```{r}
+mean_0_y =mean(mice_df_2[which(mice_df_2$A == 0), ]$mu_Y)
+
+
+mean_1_y = mean(mice_df_2[which(mice_df_2$A == 1),]$mu_Y)
+```
+
+
+```{r}
+mean_1_y- mean_0_y
+```
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
