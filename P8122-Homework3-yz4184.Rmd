@@ -40,9 +40,45 @@ theta1: The probability of assigning the units with obesity to treatment group (
 
 beta0: The mean of baseline glucose without baseline covariate C and treatment assignment A.
 
-beta1: The change in the mean of glucose between the mice with obesity and the mice without obesity, conditionally on treatment assignment A. 
+beta1: Intervening to increase C (obesity) by one unit will, on average, increase the outcome Y (glucose) by beta1 units.
 
-beta2: The change in the mean of glucose between the treatment group (light) and the control group (dark), conditionally on baseline covariate C (obesity). 
+beta2: Intervening to increase A (light) by one unit will, on average, increase the outcome Y (glucose) by beta2 units.
+
+# Question c
+
+## For randimized study
+
+```{r}
+data = read.csv("./light.csv") %>% 
+  janitor::clean_names()
+
+bright_dark_df = data %>% 
+  filter(light %in% c("LD", "LL"))
+
+bright_dark_df = bright_dark_df  %>%
+  select(bm_gain, light, everything())%>%
+  rename( Y_obs = bm_gain,
+          A = light)
+
+Y_obs = bright_dark_df$Y_obs
+A = bright_dark_df$A
+A = as.factor(A)
+```
+
+
+```{r}
+E_Y1_r = mean(Y_obs[A == "LL"])
+
+E_Y0_r = mean(Y_obs[A == "LD"])
+```
+
+According to the g-formula: E[Y1] = `r E_Y1_r`  E[Y0] = `r E_Y0_r`
+
+
+## For observational study
+
+
+
 
 
 # Question d
@@ -71,7 +107,7 @@ onesample <- rbind(mice_df, interv0, interv1)
 
 
 ```{r}
-std <- glm(
+std <- lm(
   Y ~ A + C,
   data = onesample
 )
@@ -91,6 +127,7 @@ mean_1_c = mean(onesample[which(onesample$interv == 1),]$predicted_meanY)
 mean_1_c - mean_0_c
 ```
 
+E[Y |A = 1] − E[Y |A = 0] = `r mean_1_c - mean_0_c`
 
 # Question e
 
@@ -123,10 +160,12 @@ mean_1_y = mean(mice_df_2[which(mice_df_2$A == 1),]$mu_Y)
 ```{r}
 mean_1_y- mean_0_y
 ```
-```
 
 
+# Question f
 
+1. The linear regression to be correctly specified
+2. All confounders are included in the new covariates.
 
 
 
