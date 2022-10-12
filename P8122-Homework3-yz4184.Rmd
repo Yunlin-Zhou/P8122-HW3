@@ -2,7 +2,7 @@
 title: "P8122-Homework3-yz4184"
 author: "Yunlin Zhou"
 date: '2022-10-09'
-output: word_document
+output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
@@ -24,7 +24,7 @@ p_A <- theta0+theta1*C
 A <- rbinom(n,1,p_A)
 beta0 <- 110
 beta1 <- 20
-beta2 <- 5
+beta2 <- -5
 sigma_Y <- 1
 mu_Y <- beta0+beta1*C+beta2*A
 Y <- rnorm(n,mu_Y, sigma_Y)
@@ -40,46 +40,17 @@ theta1: The probability of assigning the units with obesity to treatment group (
 
 beta0: The mean of baseline glucose without baseline covariate C and treatment assignment A.
 
-beta1: Intervening to increase C (obesity) by one unit will, on average, increase the outcome Y (glucose) by beta1 units.
+beta1: Intervening to increase C (obesity) by one unit will, on average, increase the outcome Y (glucose) by 20 units.
 
-beta2: Intervening to increase A (light) by one unit will, on average, increase the outcome Y (glucose) by beta2 units.
+beta2: Intervening to increase A (light) by one unit will, on average, decrease the outcome Y (glucose) by 5 units.
+
+# Question b
+
+<img src="./Page1.jpg" style="width:75%">
 
 # Question c
 
-## For randimized study
-
-```{r}
-data = read.csv("./light.csv") %>% 
-  janitor::clean_names()
-
-bright_dark_df = data %>% 
-  filter(light %in% c("LD", "LL"))
-
-bright_dark_df = bright_dark_df  %>%
-  select(bm_gain, light, everything())%>%
-  rename( Y_obs = bm_gain,
-          A = light)
-
-Y_obs = bright_dark_df$Y_obs
-A = bright_dark_df$A
-A = as.factor(A)
-```
-
-
-```{r}
-E_Y1_r = mean(Y_obs[A == "LL"])
-
-E_Y0_r = mean(Y_obs[A == "LD"])
-```
-
-According to the g-formula: E[Y1] = `r E_Y1_r`  E[Y0] = `r E_Y0_r`
-
-
-## For observational study
-
-
-
-
+<img src="./Page2.jpg" style="width:75%">
 
 # Question d
 
@@ -132,34 +103,21 @@ E[Y |A = 1] − E[Y |A = 0] = `r mean_1_c - mean_0_c`
 # Question e
 
 ```{r}
-df = onesample %>%
-  filter(interv == -1)
+E_Y1_1 = beta0+beta1*1+beta2*1
+E_Y1_0 = beta0+beta1*0+beta2*1
 
-mean_1 = mean(df[which(df$A == 1), ]$predicted_meanY)
-mean_0 = mean(df[which(df$A == 0), ]$predicted_meanY)
-mean_1 - mean_0
+E_Y1 = E_Y1_1 * p_C + E_Y1_0 * (1 - p_C)
+
+E_Y0_1 = beta0+beta1*1+beta2*0
+E_Y0_0 = beta0+beta1*0+beta2*0
+
+E_Y0 = E_Y0_1 * p_C + E_Y0_0 * (1 - p_C)
+
+E_Y1 - E_Y0
+
 ```
 
 
-## another try
-
-```{r}
-mice_df_2 = cbind(mu_Y, A, C)%>%
-  as.data.frame()
-```
-
-
-```{r}
-mean_0_y =mean(mice_df_2[which(mice_df_2$A == 0), ]$mu_Y)
-
-
-mean_1_y = mean(mice_df_2[which(mice_df_2$A == 1),]$mu_Y)
-```
-
-
-```{r}
-mean_1_y- mean_0_y
-```
 
 
 # Question f
