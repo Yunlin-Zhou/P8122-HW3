@@ -2,7 +2,10 @@
 title: "P8122-Homework3-yz4184"
 author: "Yunlin Zhou"
 date: '2022-10-09'
-output: pdf_document
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
 ---
 
 ```{r setup, include=FALSE}
@@ -46,11 +49,34 @@ beta2: Intervening to increase A (light) by one unit will, on average, decrease 
 
 # Question b
 
-<img src="./Page1.jpg" style="width:75%">
+```{r echo=FALSE}
+knitr::include_graphics("Page1.jpg")
+```
+
+
+### Marginal PACE
+We can identify marginal PACE when there is no backdoor path (randomized experiments). 
+
+The marginal PACE is counterfactual. We assume the expectation if the whole population is assigned to treatment or control group.
+
+
+### Conditional PACE
+We can identify conditional PACE when there is no unobserved confounding (for observational experiment).
+
+The conditional PACE is conditional on specific level of covariate. It’s not across the population.
+
 
 # Question c
 
-<img src="./Page2.jpg" style="width:75%">
+```{r echo=FALSE}
+knitr::include_graphics("Page2.jpg")
+```
+
+
+For the *randomized study*, we assume that there are no confounders thus we can conclude the g-formula as above (without covariate C).
+
+For the *observational study*, we assume that there is a confounder which will affect the assignment, thus we need to calculate the expectation conditional on the covariate C.
+
 
 # Question d
 
@@ -78,7 +104,7 @@ onesample <- rbind(mice_df, interv0, interv1)
 
 
 ```{r}
-std <- lm(
+std <- glm(
   Y ~ A + C,
   data = onesample
 )
@@ -98,7 +124,10 @@ mean_1_c = mean(onesample[which(onesample$interv == 1),]$predicted_meanY)
 mean_1_c - mean_0_c
 ```
 
-E[Y |A = 1] − E[Y |A = 0] = `r mean_1_c - mean_0_c`
+In this question, we consider about a counterfactual situation. In this formula, covariate C is not included and this formula shows the association other than causal effect.  
+
+If we randomly assign the population to the treatment group (A=1) and the control group (A=0), then, on average, the the treatment group will have a value of outcome Y which is 5.170957 units lower.
+
 
 # Question e
 
@@ -112,18 +141,27 @@ E_Y0_1 = beta0+beta1*1+beta2*0
 E_Y0_0 = beta0+beta1*0+beta2*0
 
 E_Y0 = E_Y0_1 * p_C + E_Y0_0 * (1 - p_C)
-
 E_Y1 - E_Y0
 
 ```
 
+In this question, we calculate the marginal ACE using g-formula. In this situation, covariate C is included and this formula shows the causal effect.
 
+If we assign the population to the treatment group (A=1) and the control group (A=0) conditional on the covariate C, then, on average, the the treatment group will have a value of outcome Y which is 5 units lower.
+
+
+#### The differences between the inferences obtained in (d) and (e):
+
+* In question d, the covariate C is not included and we assume a randomized assignment. But in question e, the covariate C is included and we assume an assignment based on covariate.
+
+* The formula in question d tells us about the association, but the formula in question e tells us about the casual effect.
 
 
 # Question f
 
-1. The linear regression to be correctly specified
-2. All confounders are included in the new covariates.
+* The linear regression to be correctly specified.
+
+* All confounders are included in the new covariates.
 
 
 
