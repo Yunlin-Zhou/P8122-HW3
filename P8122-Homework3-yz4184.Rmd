@@ -27,7 +27,7 @@ p_A <- theta0+theta1*C
 A <- rbinom(n,1,p_A)
 beta0 <- 110
 beta1 <- 20
-beta2 <- -5
+beta2 <- 5
 sigma_Y <- 1
 mu_Y <- beta0+beta1*C+beta2*A
 Y <- rnorm(n,mu_Y, sigma_Y)
@@ -37,15 +37,15 @@ Y <- rnorm(n,mu_Y, sigma_Y)
 
 p: The baseline covariate C (obesity) follows Bernoulli distribution. p is the probability of C taking 1 (with obesity).
 
-theta0: The original probability of assigning the units to treatment group (light) if there were no baseline covariate C.
+theta0: The probability of assigning the units to treatment group (light) if the units are not with obesity (C = 0).
 
 theta1: The probability of assigning the units with obesity to treatment group (light) is 1/5 times lower than the units without obesity on average.
 
 beta0: The mean of baseline glucose when the mice are non-obese and unexposed to light.
 
-beta1: Intervening to increase C (obesity) by one unit will, on average, increase the outcome Y (glucose) by 20 units.
+beta1: Intervening to increase C (obesity) by one unit will, on average, increase the outcome Y (glucose) by 20 units, holding other	conditions	to	be	the	same.	
 
-beta2: Intervening to increase A (light) by one unit will, on average, decrease the outcome Y (glucose) by 5 units.
+beta2: Intervening to increase A (light) by one unit will, on average, decrease the outcome Y (glucose) by 5 units, holding other	conditions	to	be	the	same.	
 
 # Question b
 
@@ -85,69 +85,37 @@ mice_df = cbind(Y, A, C)%>%
   as.data.frame()
 ```
 
-
 ```{r}
-mice_df$interv <- -1 
-
-interv0 <- mice_df
-interv0$interv <- 0
-interv0$A <- 0
-interv0$Y<- NA
-
-interv1 <- mice_df 
-interv1$interv <- 1
-interv1$A <- 1
-interv1$Y<- NA
-
-onesample <- rbind(mice_df, interv0, interv1) 
+EYA1_1=mean(mice_df[which(mice_df$A == 1 & C == 1), ]$Y)
+EYA1_1
+EYA1_0=mean(mice_df[which(mice_df$A == 1 & C == 0), ]$Y)
+EYA1_0
+EYA0_1=mean(mice_df[which(mice_df$A == 0 & C == 1), ]$Y)
+EYA0_1
+EYA0_0=mean(mice_df[which(mice_df$A == 0 & C == 0), ]$Y)
+EYA0_0
 ```
 
-
-```{r}
-std <- glm(
-  Y ~ A + C,
-  data = onesample
-)
-onesample$predicted_meanY <- predict(std, onesample)
+```{r echo=FALSE}
+knitr::include_graphics("Page3.jpg")
 ```
 
+In this question, we consider about the crude mean. This formula shows the association other than causal effect.  
 
-```{r}
-mean_0_c =mean(onesample[which(onesample$interv == 0), ]$predicted_meanY)
-
-
-mean_1_c = mean(onesample[which(onesample$interv == 1),]$predicted_meanY)
-```
-
-
-```{r}
-mean_1_c - mean_0_c
-```
-
-In this question, we consider about a counterfactual situation. In this formula, covariate C is not included and this formula shows the association other than causal effect.  
-
-If we randomly assign the population to the treatment group (A=1) and the control group (A=0), then, on average, the the treatment group will have a value of outcome Y which is 5.170957 units lower.
+On average, the the treatment group will have a value of outcome Y which is 2.5667 units lower.
 
 
 # Question e
 
-```{r}
-E_Y1_1 = beta0+beta1*1+beta2*1
-E_Y1_0 = beta0+beta1*0+beta2*1
 
-E_Y1 = E_Y1_1 * p_C + E_Y1_0 * (1 - p_C)
 
-E_Y0_1 = beta0+beta1*1+beta2*0
-E_Y0_0 = beta0+beta1*0+beta2*0
-
-E_Y0 = E_Y0_1 * p_C + E_Y0_0 * (1 - p_C)
-E_Y1 - E_Y0
-
+```{r echo=FALSE}
+knitr::include_graphics("Page3.jpg")
 ```
 
 In this question, we calculate the marginal ACE using g-formula. In this situation, covariate C is included and this formula shows the causal effect.
 
-If we assign the population to the treatment group (A=1) and the control group (A=0) conditional on the covariate C, then, on average, the the treatment group will have a value of outcome Y which is 5 units lower.
+If we assign the population to the treatment group (A=1) and the control group (A=0) conditional on the covariate C, then, on average, the the treatment group will have a value of outcome Y which is 20.34672 units lower.
 
 
 #### The differences between the inferences obtained in (d) and (e):
