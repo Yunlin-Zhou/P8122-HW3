@@ -41,7 +41,7 @@ theta0: The original probability of assigning the units to treatment group (ligh
 
 theta1: The probability of assigning the units with obesity to treatment group (light) is 1/5 times lower than the units without obesity on average.
 
-beta0: The mean of baseline glucose without baseline covariate C and treatment assignment A.
+beta0: The mean of baseline glucose when the mice are non-obese and unexposed to light.
 
 beta1: Intervening to increase C (obesity) by one unit will, on average, increase the outcome Y (glucose) by 20 units.
 
